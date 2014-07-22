@@ -6,7 +6,10 @@ class SearchPlacesController < UITableViewController
   def viewWillAppear(animated)
     super
 
+    #== UI Properties
     self.title = "Search Places"
+
+    #== State
     @searchResults ||= []
     @slot ||= :source
 
@@ -16,6 +19,7 @@ class SearchPlacesController < UITableViewController
     @currentLocation.latitude = LocalStorageUtil.get("currentLatitude")
     @currentLocation.longitude = LocalStorageUtil.get("currentLongitude")
 
+    #== UI elements
     self.tableView.delegate = self
     self.tableView.dataSource = self
 

@@ -72,18 +72,6 @@ class TwoPointsController < UIViewController
     true
   end
 
-  # Create a button and add it beneath the tableview
-  # def createCalculateButton!
-  #   @calculateButton = UIButton.alloc.init
-  #   @calculateButton.setTitle("Calculate", forState:UIControlStateNormal)
-  #   @calculateButton.setTitleColor(UISettings.buttonTitleColor, forState:UIControlStateNormal)
-  #   @calculateButton.setTitleColor(UISettings.buttonPressedTitleColor, forState:UIControlStateHighlighted)
-  #   @calculateButton.frame = CGRectMake(0, 220, @applicationFrameSize.width, 40)
-  #   @calculateButton.addTarget(self, action:'calculcateGainLoss', forControlEvents:UIControlEventTouchUpInside)
-  #   self.view.addSubview(@calculateButton)
-  #   true
-  # end
-
   def createResultLabels!
     infoLabel = UILabel.alloc.init
     infoLabel.text = "Gain / Loss:"
@@ -91,8 +79,6 @@ class TwoPointsController < UIViewController
     infoLabelMaxSize = CGSizeMake(@applicationFrameSize.width, CGFLOAT_MAX)
     infoLabelRequiredSize = infoLabel.sizeThatFits(infoLabelMaxSize)
     infoLabelXOffset = (@applicationFrameSize.width - infoLabelRequiredSize.width) / 2.to_f
-    #@gainLossLabel.frame = CGRectMake(xOffset, 100, requiredSize.width, requiredSize.height)
-
     infoLabel.frame = CGRectMake(infoLabelXOffset, 220, @applicationFrameSize.width, 30)
 
     self.view.addSubview(infoLabel)
@@ -101,17 +87,18 @@ class TwoPointsController < UIViewController
     @gainLossLabel.font = UIFont.systemFontOfSize(16)
     @gainLossLabel.textColor = UISettings.highlightTextColor
 
-    #maxSize = CGSizeMake(@applicationFrameSize.width, CGFLOAT_MAX)
-    #requiredSize = @gainLossLabel.sizeThatFits(maxSize)
-    #xOffset = (@applicationFrameSize.width - requiredSize.width) / 2.to_f
-    #@gainLossLabel.frame = CGRectMake(xOffset, 100, requiredSize.width, requiredSize.height)
     self.view.addSubview(@gainLossLabel)
 
-    updateGainLossLabel!("Unknown - choose points above.")
+    updateGainLossLabel!("Choose points above.", :color => UIColor.redColor)
   end
 
-  def updateGainLossLabel!(text)
+  def updateGainLossLabel!(text, options = {})
     @gainLossLabel.text = text
+    if options && options[:color]
+      @gainLossLabel.textColor = options[:color]
+    else
+      @gainLossLabel.textColor = UISettings.highlightTextColor
+    end
     maxSize = CGSizeMake(@applicationFrameSize.width, CGFLOAT_MAX)
     requiredSize = @gainLossLabel.sizeThatFits(maxSize)
     frame = @gainLossLabel.frame
@@ -189,24 +176,18 @@ class TwoPointsController < UIViewController
 
   def determineElevationForSlot(slotNumber, location)
     @elevationClient.fetch(location.latitude,location.longitude) do |json|
-      updateElevationForSlot(slotNumber, json['results'][0]['elevation'])
+      if json && json['results']
+        if json['results'].is_a?(Array)
+          if json['results'][0] && json['results'][0]['elevation']
+            updateElevationForSlot(slotNumber, json['results'][0]['elevation'])
+          end
+        end
+      end
     end
-
-    # if slotNumber == 0
-    #   elevation = 24.1367950439453
-    # elsif slotNumber == 1
-    #   elevation = 1607.54626464844
-    # end
-    # updateElevationForSlot(slotNumber, elevation)
   end
 
   def updateElevationForSlot(slotNumber, elevation)
-    case slotNumber
-    when 0
-      @elevations[0] = elevation
-    when 1
-      @elevations[1] = elevation
-    end
+    @elevations[slotNumber] = elevation
     calculcateDifference!
   end
 
@@ -214,10 +195,6 @@ class TwoPointsController < UIViewController
     valid0 = @elevations[0].is_a?(NSNumber)
     valid1 = @elevations[1].is_a?(NSNumber)
     if @elevations.count == 2 && valid0 && valid1
-      #puts "source = #{@locations[0]}"
-      #puts "destination = #{@locations[1]}"
-      #puts "elevation:0 = #{@elevations[0]}"
-      #puts "elevation:1 = #{@elevations[1]}"
       Dispatch::Queue.main.async do
         resultInMeters = @elevations[0] - @elevations[1]
         resultInFeet = ConversionUtil.metersToFeet(resultInMeters)

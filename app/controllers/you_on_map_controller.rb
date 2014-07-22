@@ -5,32 +5,29 @@ class YouOnMapController < UIViewController
   def viewWillAppear(animated)
     super
 
+    #== State
     @timeOfLastUpdate = 0
-    @size = UIScreen.mainScreen.applicationFrame.size
-    @containerBoxWidth = (@size.width * 0.40).ceil
-
     @lastKnownCoordinate = nil
+    @applicationFrameSize = UIScreen.mainScreen.applicationFrame.size
+    @elevationBoxWidth = (@applicationFrameSize.width * 0.40).ceil
 
+    #== UI properties
     self.title = "You"
     self.view.backgroundColor = UIColor.whiteColor
 
+    #== Utility
+    @elevationClient = GoogleElevationClient.instance
     @numberFormatter = NSNumberFormatter.alloc.init
     @numberFormatter.numberStyle = NSNumberFormatterDecimalStyle
     @numberFormatter.setMaximumFractionDigits(0)
 
-    @elevationClient = GoogleElevationClient.instance
-
+    #== UI elements
     @mapView = MKMapView.alloc.init
     @mapView.delegate = self
     @mapView.scrollEnabled = true
     @mapView.zoomEnabled = true
     @mapView.showsUserLocation = true
-
-    size = UIScreen.mainScreen.applicationFrame.size
-
-    # full screen
-    @mapView.frame = CGRectMake(0, 20, size.width, size.height)
-
+    @mapView.frame = CGRectMake(0, 20, @applicationFrameSize.width, @applicationFrameSize.height)
     self.view.addSubview(@mapView)
 
     createInfoBox!
@@ -76,14 +73,14 @@ class YouOnMapController < UIViewController
     box.layer.borderWidth = 2.0
     box.layer.borderColor = UIColor.blackColor
 
-    xOffset = (@size.width - @containerBoxWidth) / 2.to_f
-    box.frame = CGRectMake(xOffset, 40, @containerBoxWidth, 46)
+    xOffset = (@applicationFrameSize.width - @elevationBoxWidth) / 2.to_f
+    box.frame = CGRectMake(xOffset, 40, @elevationBoxWidth, 46)
 
     infoLabel = UILabel.alloc.init
     infoLabel.text = "Elevation"
     infoLabel.font = UIFont.boldSystemFontOfSize(14)
     infoLabelSize = infoLabel.sizeThatFits(CGSizeMake(100, CGFLOAT_MAX))
-    xInfoLabelOffset = (@containerBoxWidth - infoLabelSize.width) / 2.to_f
+    xInfoLabelOffset = (@elevationBoxWidth - infoLabelSize.width) / 2.to_f
     infoLabel.frame = CGRectMake(xInfoLabelOffset, 2, infoLabelSize.width, infoLabelSize.height)
 
     @elevationValue = UILabel.alloc.init
@@ -92,7 +89,7 @@ class YouOnMapController < UIViewController
     @elevationValue.font = UIFont.systemFontOfSize(16)
     elevationValueLabelSize = @elevationValue.sizeThatFits(CGSizeMake(100, CGFLOAT_MAX))
 
-    xInfoOffset = (@containerBoxWidth - elevationValueLabelSize.width) / 2.to_f
+    xInfoOffset = (@elevationBoxWidth - elevationValueLabelSize.width) / 2.to_f
     @elevationValue.frame = CGRectMake(xInfoOffset, infoLabelSize.height + 8,
       elevationValueLabelSize.width, elevationValueLabelSize.height)
 
@@ -119,7 +116,7 @@ class YouOnMapController < UIViewController
       value = @numberFormatter.stringFromNumber(feet)
       @elevationValue.text = "#{value} ft."
       size = @elevationValue.sizeThatFits(CGSizeMake(100, CGFLOAT_MAX))
-      xOffset = (@containerBoxWidth - size.width) / 2.to_f
+      xOffset = (@elevationBoxWidth - size.width) / 2.to_f
       frame = @elevationValue.frame
       frame.size.width = size.width
       frame.origin.x = xOffset
