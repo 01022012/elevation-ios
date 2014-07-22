@@ -31,6 +31,7 @@ class TwoPointsController < UIViewController
     createTitleLabel!
     createTableView!
     createResultLabels!
+    createWhoIsHigherAndLowerLabels!
 
     $s = self
     true
@@ -107,6 +108,39 @@ class TwoPointsController < UIViewController
     frame.origin.x = (@applicationFrameSize.width - requiredSize.width) / 2.to_f
     frame.origin.y = 260
     @gainLossLabel.frame = frame
+  end
+
+  # Create 2 UILabels representing our points
+  # and display text like "A is lower than B"
+  def createWhoIsHigherAndLowerLabels!
+    @metaLabel = UILabel.alloc.init
+    @metaLabel.font = UIFont.italicSystemFontOfSize(14)
+    @metaLabel.numberOfLines = 0
+    @metaLabel.lineBreakMode = NSLineBreakByWordWrapping
+    @metaLabel.frame = CGRectMake(0, 280, 0, 0)
+    self.view.addSubview(@metaLabel)
+  end
+
+  def updateWhoIsHigherAndLowerLabel!(sourceName, destinationName, adjective)
+
+    # bold the adjective
+    text = "#{sourceName} is #{adjective} #{destinationName}"
+    attrString = NSMutableAttributedString.alloc.initWithString(text)
+    attrString.beginEditing
+    range = NSMakeRange(sourceName.length + 4, adjective.length)
+    attrString.addAttribute(NSFontAttributeName,
+      value:UIFont.boldSystemFontOfSize(14), range: range)
+    attrString.endEditing
+
+    @metaLabel.attributedText = attrString
+    maxSize = CGSizeMake(@applicationFrameSize.width, CGFLOAT_MAX)
+    requiredSize = @metaLabel.sizeThatFits(maxSize)
+    frame = @metaLabel.frame
+    frame.size.width = requiredSize.width
+    frame.size.height = requiredSize.height
+    frame.origin.x = (@applicationFrameSize.width - requiredSize.width) / 2.to_f
+    frame.origin.y = 290
+    @metaLabel.frame = frame
   end
 
   def tableView(tableView, numberOfRowsInSection:section)
@@ -200,6 +234,17 @@ class TwoPointsController < UIViewController
         resultInFeet = ConversionUtil.metersToFeet(resultInMeters)
         value = @numberFormatter.stringFromNumber(resultInFeet)
         updateGainLossLabel!("#{value} ft.")
+
+        if @elevations[0] > @elevations[1]
+          adjective = "higher than"
+        elsif @elevations[0] < @elevations[1]
+          adjective = "lower than"
+        elsif @elevations[0] == @elevations[1]
+          adjective = "equal to"
+        end
+        sourceName = @locations[0].name
+        destinationName = @locations[1].name
+        updateWhoIsHigherAndLowerLabel!(sourceName, destinationName, adjective)
       end
     end
   end
