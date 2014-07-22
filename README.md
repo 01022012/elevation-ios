@@ -17,3 +17,17 @@ and `ELEVATION_API_KEY` - which is likely the same key.
 
 ![a](http://codycaughlan.s3.amazonaws.com/images/elevation-app/you.png)
 ![b](http://codycaughlan.s3.amazonaws.com/images/elevation-app/two-points.png)
+
+## Requirements
+
+* RubyMotion
+
+
+## Installation
+
+```bash
+$ gem install bundler
+$ bundle install
+$ rake pod:install
+$ rake
+```
