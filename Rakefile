@@ -9,7 +9,7 @@ require 'bubble-wrap/location'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
-  app.name = 'elevation'
+  app.name = 'Yo Elevation'
   app.version = '1.0'
 
   app.sdk_version = "7.1"
@@ -26,10 +26,10 @@ Motion::Project::App.setup do |app|
   # Portrait only
   app.interface_orientations = [:portrait, :portrait_upside_down]
 
-  if ENV['LOCAL']
-    puts "** SIGNING FOR LOCAL DEVICE **"
-    app.codesign_certificate = "iPhone Developer: Cody Caughlan (4M7ALMVEK9)"
-    app.provisioning_profile = "./provisioning/development.mobileprovision"
+  if ENV['RELEASE']
+    puts "** SIGNING FOR RELEASE **"
+    app.codesign_certificate = "iPhone Distribution: cody caughlan (ZMM6R2NN56)"
+    app.provisioning_profile = "./provisioning/appstore.mobileprovision"
   end
 
   app.pods do
