@@ -1,0 +1,31 @@
+.repl_history
+build
+tags
+app/pixate_code.rb
+resources/*.nib
+resources/*.momd
+resources/*.storyboardc
+.DS_Store
+nbproject
+.redcar
+#*#
+*~
+*.sw[po]
+.eprj
+.sass-cache
+.idea
+tmp/
+vendor/Pods
+
+# Provisioning
+provisioning/.gitkeep
+
+# Ruby / RVM
+.ruby-gemset
+.ruby-version
+
+# 3rd party build assets
+vendor/HockeySDK/build-iPhoneSimulator
+vendor/HockeySDK/*
+vendor/Flurry/build-iPhoneOS
+vendor/HockeySDK/HockeySDK.framework/build-iPhoneSimulator/
